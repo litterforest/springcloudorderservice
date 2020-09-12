@@ -24,3 +24,5 @@ spring:
 ##    hostname: provider
 #    instance-id: ${spring.cloud.client.ip-address}:${server.port}
 #debug: true
+server:
+  port: 8080
