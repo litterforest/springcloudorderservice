@@ -1,4 +1,4 @@
-package com.softd.archit.springcloudparentdemo.springcloudorderservice.controller;
+package com.softd.test.springcloud.orderservice.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

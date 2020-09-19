@@ -1,4 +1,4 @@
-package com.softd.archit.springcloudparentdemo.springcloudorderservice;
+package com.softd.test.springcloud.orderservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

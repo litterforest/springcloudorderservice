@@ -3,12 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.softd.archit.springcloudparentdemo.basestarterparent</groupId>
-        <artifactId>webstarterparent</artifactId>
+        <groupId>com.softd.test.springcloud</groupId>
+        <artifactId>ms-archit-web-feign-starter</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.softd.archit.springcloudparentdemo</groupId>
-    <artifactId>springcloudorderservice</artifactId>
+    <groupId>com.softd.test.springcloud</groupId>
+    <artifactId>spring-cloud-orderservice</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </project>
