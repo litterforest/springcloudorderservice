@@ -1,6 +1,8 @@
 package com.softd.test.springcloud.orderservice.controller;
 
+import com.softd.test.springcloud.orderservice.service.ProductFeignClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +23,8 @@ import java.util.Map;
 @RequestMapping("/order")
 @Slf4j
 public class OrderController {
-
+    @Autowired
+    private ProductFeignClient productFeignClient;
     @Value("${server.port}")
     private String serverPort;
 
@@ -36,6 +39,8 @@ public class OrderController {
 //        } catch (InterruptedException e) {
 //            log.error("", e);
 //        }
+        String productSingle = productFeignClient.getProductSingle();
+        System.err.println(productSingle);
         return "success, port:" + serverPort + "，orderId：" + orderId;
     }
 
