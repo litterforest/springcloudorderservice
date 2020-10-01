@@ -23,6 +23,7 @@ public class FeignClientFactory implements FactoryBean, BeanClassLoaderAware {
     public FeignClientFactory(Class interfaceType) {
         this.interfaceType = interfaceType;
     }
+
     @Override
     public Object getObject() throws Exception {
         InvocationHandler invocationHandler = new InvocationHandler() {
