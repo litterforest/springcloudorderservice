@@ -2,15 +2,12 @@ package com.softd.test.springcloud.orderservice.myfeign;
 
 import com.softd.test.springcloud.orderservice.myfeign.annotation.EnableMyFeignClients;
 import com.softd.test.springcloud.orderservice.myfeign.annotation.FeignClient;
-import com.softd.test.springcloud.orderservice.myfeign.annotation.FeignGet;
 import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -20,12 +17,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.client.RestTemplate;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,33 +32,17 @@ public class FeignRegistrar implements ImportBeanDefinitionRegistrar, Environmen
     private Environment environment;
     private ResourceLoader resourceLoader;
     private ClassLoader classLoader;
+
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         // 扫描包路径
-        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
-                false, this.environment) {
-            @Override
-            protected boolean isCandidateComponent(
-                    AnnotatedBeanDefinition beanDefinition) {
-                boolean isCandidate = false;
-                if (beanDefinition.getMetadata().isIndependent()) { // 扫描独立类
-                    if (!beanDefinition.getMetadata().isAnnotation()) { // 排除掉注解类
-                        isCandidate = true;
-                    }
-                }
-                return isCandidate;
-            }
-        };
-        scanner.setResourceLoader(resourceLoader);
-        AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(
-                FeignClient.class);
+        ClassPathScanningCandidateComponentProvider scanner = getFeignClientScanner();
         String basePackage = "";
         Map<String, Object> attrs = importingClassMetadata
                 .getAnnotationAttributes(EnableMyFeignClients.class.getName());
         if (attrs != null && !attrs.isEmpty()) {
             basePackage = (String) attrs.get("basePackage");
         }
-        scanner.addIncludeFilter(annotationTypeFilter);
         Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents(basePackage);
         for (BeanDefinition bd : candidateComponents) {
             AnnotatedBeanDefinition annotatedBeanDefinition = (AnnotatedBeanDefinition) bd;
@@ -77,6 +53,40 @@ public class FeignRegistrar implements ImportBeanDefinitionRegistrar, Environmen
         }
     }
 
+    /**
+     * 获取包、类扫描器
+     *
+     * @return
+     */
+    private ClassPathScanningCandidateComponentProvider getFeignClientScanner() {
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(
+                    false, this.environment) {
+                @Override
+                protected boolean isCandidateComponent(
+                        AnnotatedBeanDefinition beanDefinition) {
+                    boolean isCandidate = false;
+                    if (beanDefinition.getMetadata().isIndependent()) { // 扫描独立类
+                        if (!beanDefinition.getMetadata().isAnnotation()) { // 排除掉注解类
+                            isCandidate = true;
+                        }
+                    }
+                    return isCandidate;
+                }
+            };
+        scanner.setResourceLoader(resourceLoader);
+        AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(
+                FeignClient.class);
+        scanner.addIncludeFilter(annotationTypeFilter);
+        return scanner;
+    }
+
+    /**
+     * 注册接口代理对象
+     *
+     * @param annotatedBeanDefinition
+     * @param registry
+     */
     private void registerBeanProxy(AnnotatedBeanDefinition annotatedBeanDefinition, BeanDefinitionRegistry registry) {
         try {
             Class<?> clazz = ClassUtils.forName(annotatedBeanDefinition.getBeanClassName(), classLoader);
@@ -96,7 +106,7 @@ public class FeignRegistrar implements ImportBeanDefinitionRegistrar, Environmen
              *  注意，这里的BeanClass是生成Bean实例的工厂，不是Bean本身。
              *  FactoryBean是一种特殊的Bean，其返回的对象不是指定类的一个实例，
              *  其返回的是该工厂Bean的getObject方法所返回的对象。
-            */
+             */
             definition.setBeanClass(FeignClientFactory.class);
             // 这里采用的是byType方式注入，类似的还有byName等
             definition.setAutowireMode(GenericBeanDefinition.AUTOWIRE_BY_TYPE);
