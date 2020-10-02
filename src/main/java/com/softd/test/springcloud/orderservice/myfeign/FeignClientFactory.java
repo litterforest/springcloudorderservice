@@ -26,21 +26,18 @@ public class FeignClientFactory implements FactoryBean, BeanClassLoaderAware {
 
     @Override
     public Object getObject() throws Exception {
-        InvocationHandler invocationHandler = new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                //拿到我们的注解
-                FeignClient annotation = (FeignClient) interfaceType.getAnnotation(FeignClient.class);
-                String baseUrl  = annotation.hostName();
-                if(method.getAnnotation(FeignGet.class)!=null) {
-                    FeignGet feginGet = method.getAnnotation(FeignGet.class);
-                    String url = baseUrl+feginGet.requestUrl();
-                    System.out.println("发起请求");
-                    String result = new RestTemplate().getForObject(url,String.class,"");
-                    return result;
-                }
-                throw new IllegalAccessException("不符合要求");
+        InvocationHandler invocationHandler = (proxy, method, args) -> {
+            //拿到我们的注解
+            FeignClient annotation = (FeignClient) interfaceType.getAnnotation(FeignClient.class);
+            String baseUrl  = annotation.hostName();
+            if(method.getAnnotation(FeignGet.class)!=null) {
+                FeignGet feginGet = method.getAnnotation(FeignGet.class);
+                String url = baseUrl+feginGet.requestUrl();
+                System.out.println("发起请求");
+                String result = new RestTemplate().getForObject(url,String.class,"");
+                return result;
             }
+            throw new IllegalAccessException("不符合要求");
         };
         Object proxy = Proxy.newProxyInstance(classLoader, new Class[]{interfaceType}, invocationHandler);
         return proxy;
@@ -59,13 +56,5 @@ public class FeignClientFactory implements FactoryBean, BeanClassLoaderAware {
     @Override
     public void setBeanClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
-    }
-
-    public Class getInterfaceType() {
-        return interfaceType;
-    }
-
-    public void setInterfaceType(Class interfaceType) {
-        this.interfaceType = interfaceType;
     }
 }
