@@ -26,3 +26,26 @@ spring:
 #debug: true
 server:
   port: 8080
+
+#security:
+#  oauth2:
+#    client:
+#      client-id: client
+#      client-secret: 123456
+#    resource:
+#      # 使用令牌信息，可以设置为false以使用用户信息。 走user-info-uri接口去获取用户信息
+#      #prefer-token-info: false
+#      # 使用令牌信息，true。 走token-info-uri接口去获取用户信息
+#      # 这个时候使用的是client_credentials授权模式
+#      # 所以client-id、client-secret必须配置
+#      prefer-token-info: true
+#      #单点访问方式认证中心,查询用户信息
+#      #user-info-uri: http://localhost:9908/user
+#      #集群访问认证中心，查询用户信息
+##      user-info-uri: http://localhost:8801/mima-cloud-oauth-server/user
+#      token-info-uri: http://localhost:8080/oauth/check_token
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-value: abc123456

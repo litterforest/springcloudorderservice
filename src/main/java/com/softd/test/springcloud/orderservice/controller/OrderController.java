@@ -4,6 +4,9 @@ import com.softd.test.springcloud.orderservice.service.ProductFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,6 +49,18 @@ public class OrderController {
 
     @PostMapping("/postOrder")
     public String postOrder(@RequestBody Map<String, Object> order){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object credentials = authentication.getCredentials();
+        System.out.println(credentials.getClass().getName()+":"+authentication.getCredentials().toString());
+        Object principal = authentication.getPrincipal();
+        if(principal instanceof User){
+            User user = (User)principal;
+            System.out.println("principal:"+user);
+        }else{
+            System.out.println(principal.getClass().getName()+":"+principal);
+        }
+        Object details = authentication.getDetails();
+        System.out.println(details.getClass().getName()+":"+authentication.getDetails().toString());
         log.info("order param:" + order);
         return "success, port:" + serverPort;
     }
